@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🔢 Bitwise Matching Pattern</title>
+<style>
+  body {
+    background: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+  .container {
+    background: #ffffff;
+    color: #000000;
+    padding: 30px 40px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  h1 {
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 1.8rem;
+  }
+  p.desc {
+    font-weight: 400;
+    font-size: 0.95rem;
+    margin-bottom: 30px;
+    color: #333333;
+  }
+  input[type=number] {
+    padding: 12px 18px;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 1.5px solid #ccc;
+    outline: none;
+    width: 100%;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #000;
+    transition: border-color 0.3s ease;
+  }
+  input[type=number]:focus {
+    border-color: #0b6bcb;
+  }
+  button {
+    background: #0b6bcb;
+    border: none;
+    color: #fff;
+    padding: 14px 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%;
+  }
+  button:hover {
+    background: #095cad;
+  }
+  #output {
+    margin-top: 24px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    min-height: 1.5em;
+    color: #0b6bcb;
+  }
+  #explanation {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: #555555;
+    line-height: 1.4;
+  }
+  .binary-display {
+    margin-top: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    background: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    user-select: all;
+    color: #0b6bcb;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Bitwise Matching Pattern Tool">
+    <h1>🔢 Bitwise Matching Pattern</h1>
+    <p class="desc">
+      Enter a positive integer to find the next larger integer with the same number of binary 1s.
+    </p>
+
+    <input
+      type="number"
+      id="inputNumber"
+      min="1"
+      placeholder="Enter integer (e.g. 6)"
+      aria-label="Input integer"
+    />
+
+    <button onclick="findNext()">Find Next Number</button>
+
+    <div id="output" aria-live="polite" aria-atomic="true"></div>
+
+    <div id="explanation"></div>
+  </div>
+
+<script>
+  function nextLargerWithSameOnes(n) {
+    let c = n;
+    let c0 = 0;
+    let c1 = 0;
+
+    while (((c & 1) === 0) && (c !== 0)) {
+      c0++;
+      c >>= 1;
+    }
+    while ((c & 1) === 1) {
+      c1++;
+      c >>= 1;
+    }
+    if (c0 + c1 === 31 || c0 + c1 === 0) return -1;
+
+    let p = c0 + c1;
+
+    n |= (1 << p);
+    n &= ~((1 << p) - 1);
+    n |= (1 << (c1 - 1)) - 1;
+
+    return n;
+  }
+
+  function toBinaryStr(num) {
+    return num.toString(2);
+  }
+
+  function findNext() {
+    const input = document.getElementById("inputNumber").value.trim();
+    const output = document.getElementById("output");
+    const explanation = document.getElementById("explanation");
+
+    if (input === '' || isNaN(input) || Number(input) < 1) {
+      output.textContent = '⚠️ Please enter a valid positive integer.';
+      explanation.textContent = '';
+      return;
+    }
+
+    const n = Number(input);
+    const result = nextLargerWithSameOnes(n);
+
+    if (result === -1) {
+      output.textContent = `❌ No larger integer with the same number of 1s found.`;
+      explanation.textContent = '';
+      return;
+    }
+
+    const nOnes = n.toString(2).split('1').length - 1;
+    const resultOnes = result.toString(2).split('1').length - 1;
+
+    output.innerHTML = `
+      ✅ Next larger integer: <strong>${result}</strong><br />
+      Binary: <span class="binary-display">${toBinaryStr(result)}</span>
+    `;
+
+    explanation.innerHTML = `
+      The input number <strong>${n}</strong> has <strong>${nOnes}</strong> bit${nOnes > 1 ? 's' : ''} set in binary (<code>${toBinaryStr(n)}</code>).<br>
+      The next larger number with the same number of 1 bits is <strong>${result}</strong> (<code>${toBinaryStr(result)}</code>).
+    `;
+  }
+</script>
+</body>
+</html>
